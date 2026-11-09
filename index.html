@@ -1,0 +1,49 @@
+<!--
+  relay/index.html — Spotify sign-in "bounce" page. Published on GitHub Pages.
+
+  Why it exists: Spotify only sends people back to HTTPS addresses after
+  signing in, but the frame is plain http://frame.local:5000. GitHub Pages
+  gives this page a free HTTPS address. Spotify sends the phone here with
+  ?code=...&state=..., and this page immediately forwards the phone (with the
+  same code and state) to the frame's /callback page.
+
+  It stores nothing and sends nothing anywhere else. The code is useless
+  without a secret that never leaves the Pi (PKCE).
+
+  Setup: publish this file on GitHub Pages, then use its address
+  (e.g., https://yourname.github.io/frame-relay/) as the Redirect URI in
+  the Spotify Developer Dashboard AND on the frame's /admin page.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Returning to the music frame…</title>
+  <style>
+    body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+           background: #0f0f12; color: #f4f4f6; font: 17px/1.5 -apple-system, Segoe UI, Roboto, sans-serif;
+           text-align: center; padding: 16px; }
+    a { color: #1db954; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <main>
+    <p>Returning to the music frame…</p>
+    <p><a id="continue" href="#">Tap here if nothing happens</a></p>
+    <p style="opacity:.6;font-size:14px">Make sure your phone is on the home Wi-Fi.</p>
+  </main>
+  <script>
+    // ⬇️ The frame's sign-in return address. Change only if your frame uses a
+    //    different address (e.g., its IP: "http://192.168.1.57:5000/callback").
+    const FRAME_CALLBACK = "http://frame.local:5000/callback";
+
+    const target = FRAME_CALLBACK + window.location.search;
+    document.getElementById("continue").href = target;
+    if (window.location.search.includes("state=")) {
+      window.location.replace(target);
+    }
+  </script>
+</body>
+</html>
